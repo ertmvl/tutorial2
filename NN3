@@ -1,0 +1,48 @@
+# In matrix 5 x 6
+X = np.array([[0,0,0,0,1,1,1,0,0,1],
+              [0,1,0,1,1,0,0,1,0,1],
+              [0,1,1,0,1,0,0,0,1,1],
+              [1,1,1,0,1,0,1,0,0,1],
+              [0,1,1,1,1,0,0,0,1,1],
+              [0,0,1,1,1,0,1,1,0,1]])
+y = np.array([[0],
+              [1],
+              [1],
+              [1],
+              [1],
+              [0]])
+np.random.seed(1)
+
+# randomly generate weights, average = 0
+syn0 = 2*np.random.random((10,6)) - 1
+syn1 = 2*np.random.random((6,1)) - 1
+print syn0
+print syn1
+
+l0 = X # in layer
+
+for j in xrange(50000):
+
+    # go across layers 0, 1 and 2
+    l1 = nonlin(np.dot(l0,syn0)) # hidden layer1 (sigma function from scalar matrix multiple l0 and syn0)
+    l2 = nonlin(np.dot(l1,syn1)) # hidden layer2
+
+    l2_error = y - l2 # how much error from needed num?
+    
+    if (j% 10000) == 0: print "Error:" + str(np.mean(np.abs(l2_error)))
+        
+    # where need to go?
+    # if we shure in prediction, then only min. change it
+    l2_delta = l2_error*nonlin(l2,deriv=True)
+
+    l1_error = l2_delta.dot(syn1.T) # how much l1 affect on errors in l2?
+    
+    # where need to go for go to l1?
+    # if we shure in prediction, then only min. change it
+    l1_delta = l1_error * nonlin(l1,deriv=True)
+
+    syn1 += l1.T.dot(l2_delta)
+    syn0 += l0.T.dot(l1_delta)
+
+print "RESULT:"
+print np.round(l2,3)
